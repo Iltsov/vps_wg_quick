@@ -22,7 +22,7 @@ ENDPOINT="$(curl --ipv4 --connect-timeout 5 --tlsv1.2 --silent 'https://checkip.
 if [ -z "${ENDPOINT}" ]; then
     ENDPOINT="$(curl --ipv4 --connect-timeout 5 --tlsv1.3 --silent 'https://icanhazip.com')"
 fi
-echo $ENDPOINT > ./endpoint.var
+echo $ENDPOINT:1433 > ./endpoint.var
 
 SERVER_IP="10.50.0.1"
 
