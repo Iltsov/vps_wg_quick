@@ -57,7 +57,7 @@ MTU = 1280
 
 [Peer]
 PublicKey = $SERVER_PUBLIC_KEY
-#PresharedKey = $CLIENT_PRESHARED_KEY
+PresharedKey = $CLIENT_PRESHARED_KEY
 AllowedIPs = $ALLOWED_IP
 Endpoint = $ENDPOINT
 EOF
