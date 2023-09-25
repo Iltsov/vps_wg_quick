@@ -66,10 +66,7 @@ AllowedIPs = $CLIENT_IP
 EOF
 
 # Restart Wireguard
-systemctl stop wg-quick@wg1
-systemctl stop wg-quick@wgcf
-systemctl start wg-quick@wgcf
-systemctl start wg-quick@wg1
+systemctl restart wg-quick@wg1
 
 # Show QR config to display
 qrencode -t ansiutf8 < ./$USERNAME-warp.conf
