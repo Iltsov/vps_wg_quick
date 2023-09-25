@@ -2,7 +2,7 @@
 
 apt install python3-pip resolvconf -y
 pip install httpx
-python ./pywarp.py
+python3 ./pywarp.py
 
 ./wgcf register --accept-tos
 read KEY < ./key
