@@ -12,16 +12,11 @@ if [ -z "$1" ]
   else USERNAME=$1
 fi
 
-# USERNAME=$USERNAME-warp
-
 cd /etc/wireguard/
 
 read DNS < ./dns_warp.var
 read ENDPOINT < ./endpoint_warp.var
 read VPN_SUBNET < ./vpn_subnet_warp.var
-PRESHARED_KEY="_preshared.key"
-PRIV_KEY="_private.key"
-PUB_KEY="_public.key"
 ALLOWED_IP="0.0.0.0/0"
 
 # Go to the wireguard directory and create a directory structure in which we will store client configuration files
@@ -34,10 +29,6 @@ umask 077
 CLIENT_PRESHARED_KEY=$( wg genpsk )
 CLIENT_PRIVKEY=$( wg genkey )
 CLIENT_PUBLIC_KEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
-
-#echo $CLIENT_PRESHARED_KEY > ./"$USERNAME$PRESHARED_KEY"
-#echo $CLIENT_PRIVKEY > ./"$USERNAME$PRIV_KEY"
-#echo $CLIENT_PUBLIC_KEY > ./"$USERNAME$PUB_KEY"
 
 read SERVER_PUBLIC_KEY < /etc/wireguard/server_public_warp.key
 
@@ -54,7 +45,7 @@ cat > /etc/wireguard/clients/$USERNAME/$USERNAME-warp.conf << EOF
 PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_IP
 DNS = $DNS
-MTU = 1280
+MTU = 1420
 
 
 [Peer]
@@ -75,8 +66,7 @@ AllowedIPs = $CLIENT_IP
 EOF
 
 # Restart Wireguard
-systemctl stop wg-quick@wg1
-systemctl start wg-quick@wg1
+systemctl restart wg-quick@wg1
 
 # Show QR config to display
 qrencode -t ansiutf8 < ./$USERNAME-warp.conf

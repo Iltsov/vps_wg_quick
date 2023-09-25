@@ -25,14 +25,19 @@ echo $DNS > ./dns_warp.var
 
 echo 1 > ./last_used_ip_warp.var
 
-WAN_INTERFACE_NAME=wgcf
+WAN_INTERFACE_NAME="$(ip route | grep default | head --lines=1 | cut --delimiter=" " --fields=5)"
+# If no NIC is found, exit with an error.
+if [ -z "${WAN_INTERFACE_NAME}" ]; then
+    echo "Error: Your server's public network interface could not be found."
+    exit
+fi
 
 echo $WAN_INTERFACE_NAME > ./wan_interface_name_warp.var
 
 cat ./endpoint_warp.var | sed -e "s/:/ /" | while read SERVER_EXTERNAL_IP SERVER_EXTERNAL_PORT
 
 do
-cat > ./wg1.conf.def << EOF
+cat > ./wg1.conf << EOF
 [Interface]
 Address = $SERVER_IP
 SaveConfig = false
@@ -42,8 +47,6 @@ PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACC
 PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE;
 EOF
 done
-
-cp -f ./wg1.conf.def ./wg1.conf
 
 systemctl enable wg-quick@wg1
 

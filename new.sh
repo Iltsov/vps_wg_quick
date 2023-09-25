@@ -17,9 +17,6 @@ cd /etc/wireguard/
 read DNS < ./dns.var
 read ENDPOINT < ./endpoint.var
 read VPN_SUBNET < ./vpn_subnet.var
-PRESHARED_KEY="_preshared.key"
-PRIV_KEY="_private.key"
-PUB_KEY="_public.key"
 ALLOWED_IP="0.0.0.0/0"
 
 # Go to the wireguard directory and create a directory structure in which we will store client configuration files
@@ -32,10 +29,6 @@ umask 077
 CLIENT_PRESHARED_KEY=$( wg genpsk )
 CLIENT_PRIVKEY=$( wg genkey )
 CLIENT_PUBLIC_KEY=$( echo $CLIENT_PRIVKEY | wg pubkey )
-
-#echo $CLIENT_PRESHARED_KEY > ./"$USERNAME$PRESHARED_KEY"
-#echo $CLIENT_PRIVKEY > ./"$USERNAME$PRIV_KEY"
-#echo $CLIENT_PUBLIC_KEY > ./"$USERNAME$PUB_KEY"
 
 read SERVER_PUBLIC_KEY < /etc/wireguard/server_public.key
 
@@ -52,7 +45,7 @@ cat > /etc/wireguard/clients/$USERNAME/$USERNAME.conf << EOF
 PrivateKey = $CLIENT_PRIVKEY
 Address = $CLIENT_IP
 DNS = $DNS
-MTU = 1280
+MTU = 1420
 
 
 [Peer]
@@ -73,8 +66,7 @@ AllowedIPs = $CLIENT_IP
 EOF
 
 # Restart Wireguard
-systemctl stop wg-quick@wg0
-systemctl start wg-quick@wg0
+systemctl restart wg-quick@wg0
 
 # Show QR config to display
 qrencode -t ansiutf8 < ./$USERNAME.conf
