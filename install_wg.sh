@@ -51,10 +51,10 @@ Address = $SERVER_IP
 SaveConfig = false
 PrivateKey = $SERVER_PRIVKEY
 ListenPort = $SERVER_EXTERNAL_PORT
-PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE;
-PostUp   = ip rule add from 10.50.0.0/24 table main
-PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE;
-PostDown = ip rule del from 10.50.0.0/24 table main
+PostUp     = iptables -t nat -A POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE;
+PostUp     = ip rule add from 10.50.0.0/24 table main
+PostDown   = iptables -t nat -D POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE;
+PostDown   = ip rule del from 10.50.0.0/24 table main
 EOF
 done
 

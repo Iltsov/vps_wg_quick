@@ -22,7 +22,7 @@ ALLOWED_IP="0.0.0.0/0"
 # Go to the wireguard directory and create a directory structure in which we will store client configuration files
 mkdir -p ./clients
 cd ./clients
-mkdir ./$USERNAME
+mkdir -p ./$USERNAME
 cd ./$USERNAME
 umask 077
 
