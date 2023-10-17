@@ -34,6 +34,7 @@ Get_WireGuard_Interface_MTU() {
 }
 
 Get_WireGuard_Interface_MTU
+WAN_INTERFACE_NAME="$(ip route | grep default | head --lines=1 | cut --delimiter=" " --fields=5)"
 WireGuard_Interface_PrivateKey=$(cat ./wgcf-profile.conf | grep ^PrivateKey | cut -d= -f2- | awk '$1=$1')
 WireGuard_Interface_Address='172.16.0.2/32'
 WireGuard_Peer_PublicKey=$(cat ./wgcf-profile.conf | grep ^PublicKey | cut -d= -f2- | awk '$1=$1')
@@ -48,16 +49,22 @@ fi
 cat <<EOF > /etc/wireguard/wgcf.conf
 [Interface]
 PrivateKey = ${WireGuard_Interface_PrivateKey}
-Address = ${WireGuard_Interface_Address}
-DNS = ${WireGuard_Interface_DNS}
-MTU = ${WireGuard_Interface_MTU}
-PostUp = ip -4 rule add from ${IPv4_addr} lookup main prio 18
-PostDown = ip -4 rule delete from ${IPv4_addr} lookup main prio 18
+Address    = ${WireGuard_Interface_Address}
+DNS        = ${WireGuard_Interface_DNS}
+MTU        = ${WireGuard_Interface_MTU}
+PostUp     = ip rule add from ${IPv4_addr} lookup main prio 18
+PostUp     = ip rule add from 10.50.0.1/24 table main
+PostUp     = iptables -t nat -A POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE
+PostUp     = iptables -t nat -A POSTROUTING -o wgcf -j MASQUERADE
+PostDown   = ip rule del from ${IPv4_addr} lookup main prio 18
+PostDown   = ip rule del from 10.50.0.1/24 table main
+PostDown   = iptables -t nat -D POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE
+PostDown   = iptables -t nat -D POSTROUTING -o wgcf -j MASQUERADE
 
 [Peer]
-PublicKey = ${WireGuard_Peer_PublicKey}
+PublicKey  = ${WireGuard_Peer_PublicKey}
 AllowedIPs = ${WireGuard_Peer_AllowedIPs}
-Endpoint = ${WireGuard_Peer_Endpoint}
+Endpoint   = ${WireGuard_Peer_Endpoint}
 EOF
 
 systemctl enable wg-quick@wgcf

@@ -43,10 +43,6 @@ Address = $SERVER_IP
 SaveConfig = false
 PrivateKey = $SERVER_PRIVKEY
 ListenPort = $SERVER_EXTERNAL_PORT
-PostUp     = iptables -t nat -A POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE;
-PostUp     = ip rule add from 10.60.0.0/24 table default
-PostDown   = iptables -t nat -D POSTROUTING -o $WAN_INTERFACE_NAME -j MASQUERADE;
-PostDown   = ip rule del from 10.60.0.0/24 table default
 EOF
 done
 
